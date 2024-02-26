@@ -39,7 +39,7 @@ export default class AbstractThreeCanvas extends HTMLElement {
   }
 
   public readonly initGUI = (): void => {
-    this.GUI = new GUI();
+    this.GUI = new GUI({ width: 120 });
   };
 
   public readonly addMouseEvent = (): void => {
