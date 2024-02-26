@@ -1,0 +1,164 @@
+---
+const { width, height, id } = Astro.props;
+---
+
+<three-canvas data-width={width} data-height={height} data-id={id}>
+  <canvas id={id}></canvas>
+</three-canvas>
+
+<style>
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+</style>
+<script>
+  import * as THREE from "three";
+  import gsap from "gsap";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import AbstractThreeCanvas from "../utils/AbstractThreeJsClass";
+  import { RGBELoader } from "three/examples/jsm/Addons.js";
+
+  const PI = Math.PI;
+
+  class ThreeCanvas extends AbstractThreeCanvas {
+    public readonly textureLoader: THREE.TextureLoader;
+
+    constructor() {
+      super();
+      this.textureLoader = new THREE.TextureLoader(this.loadingManager);
+      this.init();
+    }
+
+    private readonly init = (): void => {
+      this.addMouseEvent();
+      this.initGUI();
+      this.draw();
+    };
+    private readonly draw = (): void => {
+      this.camera.position.set(0, 0.22, 0);
+
+      const ambientLight = new THREE.AmbientLight(0x333333, 1);
+      this.scene.add(ambientLight);
+      const pointLight = new THREE.PointLight(0x5555ff, 50);
+      pointLight.position.x = 2;
+      pointLight.position.y = 3;
+      pointLight.position.z = 4;
+      this.scene.add(pointLight);
+
+      // Environment map
+      // const rgbLoader = new RGBELoader().load(
+      //   "textures/environmentMap/2k.hdr",
+      //   (environmentMap) => {
+      //     const environment = environmentMap;
+      //     environment.mapping = THREE.EquirectangularReflectionMapping;
+
+      //     this.scene.background = environment;
+      //     this.scene.environment = environment;
+      //   },
+      // );
+      // Textures
+      const doorColorTexture = this.textureLoader.load(
+        "textures/door/color.jpg?url",
+      );
+      const doorAlphaTexture = this.textureLoader.load(
+        "textures/door/alpha.jpg?url",
+      );
+      const doorNormalTexture = this.textureLoader.load(
+        "textures/door/normal.jpg?url",
+      );
+      const doorAmbientOcclusionTexture = this.textureLoader.load(
+        "textures/door/ambientOcclusion.jpg?url",
+      );
+      const doorHeightTexture = this.textureLoader.load(
+        "textures/door/height.jpg?url",
+      );
+      const doorMetalnessTexture = this.textureLoader.load(
+        "textures/door/metalness.jpg?url",
+      );
+      const doorRoughnessTexture = this.textureLoader.load(
+        "textures/door/roughness.jpg?url",
+      );
+      const matCapTexture = this.textureLoader.load(
+        "textures/matcaps/4.png?url",
+      );
+      const gradientTexture = this.textureLoader.load(
+        "textures/gradients/3.jpg?url",
+      );
+
+      doorColorTexture.colorSpace = THREE.SRGBColorSpace;
+      matCapTexture.colorSpace = THREE.SRGBColorSpace;
+
+      // const material = new THREE.MeshBasicMaterial({ map: doorColorTexture });
+      // material.side = THREE.DoubleSide;
+
+      // const material = new THREE.MeshNormalMaterial();
+
+      // const material = new THREE.MeshMatcapMaterial();
+      // material.matcap = matCapTexture;
+
+      const material = new THREE.MeshStandardMaterial();
+      material.side = THREE.DoubleSide;
+      // material.flatShading = true;
+
+      // material.map = doorColorTexture;
+      // material.aoMap = doorAmbientOcclusionTexture;
+      // material.metalnessMap = doorMetalnessTexture;
+      // material.roughnessMap = doorRoughnessTexture;
+      // material.normalMap = doorNormalTexture;
+      material.transparent = true;
+      // material.alphaMap = doorAlphaTexture;
+
+      // material.aoMapIntensity = 1;
+      // material.roughness = 0.3;
+      // material.wireframe = true;
+      if (this.GUI) {
+        // this.GUI.add(material, "metalness").min(0.1).max(1).step(0.0001);
+        // this.GUI.add(material, "roughness").min(0.1).max(1).step(0.0001);
+        this.GUI.add(material, "wireframe");
+      }
+      // Meshes
+      // const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+      // const sphere = new THREE.Mesh(
+      //   new THREE.SphereGeometry(0.5, 16, 16),
+      //   material,
+      // );
+      const torus = new THREE.Mesh(
+        new THREE.TorusGeometry(-0.08, 0.08, 64, 64),
+        material,
+      );
+      torus.geometry.scale(2.5, 2.5, 2.5);
+      // torus.position.x = 1.5;
+      // sphere.position.x = -1.5;
+
+      this.scene.add(torus);
+
+      // Controls
+      const orbitControls = new OrbitControls(
+        this.camera,
+        this.canvasElement ? this.canvasElement : undefined,
+      );
+      orbitControls.enableDamping = true;
+
+      // Animations
+      const tick = () => {
+        orbitControls.update();
+        this.renderer.render(this.scene, this.camera);
+        // // Render
+        const elapsedTime = this.clock.getElapsedTime();
+        // sphere.rotation.y = 0.5 * elapsedTime;
+        // plane.rotation.y = 0.1 * elapsedTime;
+        torus.rotation.y = -0.3 * elapsedTime;
+
+        // sphere.rotation.x = -0.15 * elapsedTime;
+        // plane.rotation.x = -0.15 * elapsedTime;
+        torus.rotation.x = 0.3 * elapsedTime;
+        window.requestAnimationFrame(tick);
+      };
+      tick();
+    };
+  }
+  customElements.define("three-canvas", ThreeCanvas);
+</script>

@@ -1,0 +1,110 @@
+---
+const { width, height, id } = Astro.props;
+---
+
+<three-canvas data-width={width} data-height={height} data-id={id}>
+  <canvas id={id}></canvas>
+</three-canvas>
+
+<style>
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+</style>
+<script>
+  import * as THREE from "three";
+  import gsap from "gsap";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import AbstractThreeCanvas from "../../utils/AbstractThreeJsClass";
+
+  const PI = Math.PI;
+
+  class ThreeCanvas extends AbstractThreeCanvas {
+    constructor() {
+      super();
+      this.init();
+    }
+
+    private readonly init = (): void => {
+      this.addMouseEvent();
+      this.initGUI();
+      this.draw();
+    };
+    private readonly draw = (): void => {
+      this.camera.position.set(0, 0, 5);
+
+      const cube = new THREE.Mesh(
+        new THREE.BoxGeometry(),
+        new THREE.MeshBasicMaterial({
+          color: this.debugObject.color,
+          wireframe: true,
+        }),
+      );
+      const cube2 = new THREE.Mesh(
+        new THREE.BoxGeometry(),
+        new THREE.MeshBasicMaterial({
+          color: this.debugObject.color,
+          wireframe: true,
+        }),
+      );
+
+      this.debugObject.color = "#4cdf16";
+      this.debugObject.subdivisions = 2;
+      this.debugObject.spin = () => {
+        gsap.to(cube.rotation, { y: cube.rotation.y + Math.PI * 2 });
+      };
+
+      if (this.GUI) {
+        this.GUI.add(cube.position, "y").min(-3).max(3).step(0.01);
+        this.GUI.add(cube.material, "wireframe");
+        this.GUI.add(cube2.material, "wireframe");
+        // Color change
+        this.GUI.addColor(this.debugObject, "color").onChange(() => {
+          cube.material.color.set(this.debugObject.color);
+        });
+        // To add functions we need to use debugObject
+        this.GUI.add(this.debugObject, "spin");
+        //To change wireframe subdivisions we need to destroy the previous geometry
+        this.GUI.add(this.debugObject, "subdivisions")
+          .min(1)
+          .max(10)
+          .step(1)
+          .onFinishChange(() => {
+            cube2.geometry.dispose();
+            cube2.geometry = new THREE.BoxGeometry(
+              1,
+              1,
+              1,
+              this.debugObject.subdivisions,
+              this.debugObject.subdivisions,
+              this.debugObject.subdivisions,
+            );
+          });
+      }
+      cube2.geometry.scale(1.5, 1.5, 1.5);
+      this.scene.add(cube);
+      this.scene.add(cube2);
+      this.scene.add(this.camera);
+
+      // Controls
+      const orbitControls = new OrbitControls(
+        this.camera,
+        this.canvasElement ? this.canvasElement : undefined,
+      );
+      orbitControls.enableDamping = true;
+
+      // Animations
+      const tick = () => {
+        orbitControls.update();
+        this.renderer.render(this.scene, this.camera);
+        // // Render
+        window.requestAnimationFrame(tick);
+      };
+      tick();
+    };
+  }
+  customElements.define("three-canvas", ThreeCanvas);
+</script>
