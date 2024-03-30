@@ -1,12 +1,37 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import ThreeCanvas from "../components/ThreeCanvas.astro";
+import Icon from "../components/icon.astro";
 ---
 
-<Layout title="Welcome to Astro.">
+<script>
+  // Processed! Bundled! TypeScript-supported!
+  // Importing local scripts and Node modules works.
+  import gsap from "gsap";
+  const logoTL = gsap.timeline({ repeat: -1, repeatDelay: 2.37 });
+  const logoReel = document.querySelector("[data-element='logo-reel']");
+  const svg = document.querySelector("[data-element='svg-logo']")!;
+  console.log(frames);
+  const { width } = document
+    .querySelector("[data-element='svg-logo']")!
+    .getBoundingClientRect();
+  logoTL
+    .to(svg, {
+      attr: { viewBox: "1200 0 400 400" },
+      ease: "steps(3)",
+      repeat: 1,
+      duration: 0.5,
+    })
+    .to(svg, {
+      attr: { viewBox: "0 0 400 400" },
+      duration: 0,
+    });
+</script>
+
+<Layout title=".dev">
   <main>
-    <h1 class="text-center">sazza.<span class="text-gradient">dev</span></h1>
-    <ThreeCanvas id="main-canvas" />
+    <h1 class="text-center">WELCOME</h1>
+    <Icon icon="logo" width="40%" data-element="svg-logo" />
   </main>
 </Layout>
 
@@ -14,22 +39,24 @@ import ThreeCanvas from "../components/ThreeCanvas.astro";
   main {
     margin: 0;
     padding: 0;
-    color: white;
     position: relative;
     width: 100%;
     height: 100dvh;
-    overflow: hidden;
+    display: grid;
+    place-items: center;
   }
 
   h1 {
-    font-size: 1.6rem;
+    font-size: 1rem;
+    font-size: clamp(2.4rem, 10vw, 4.6rem);
     font-weight: 700;
     line-height: 1;
     margin: 0;
     padding: 0;
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     opacity: 0.75;
   }
 </style>

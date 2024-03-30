@@ -1,0 +1,40 @@
+---
+import type { CSSProperty } from "astro/types";
+import { parse } from "node-html-parser";
+
+export interface Props {
+  icon: string;
+  width: string;
+  styles?: Record<CSSProperty, string>;
+}
+
+function getSVG(name: string) {
+  const filepath = `/src/svg/${name}.svg`;
+  //ts-ignore-next-line
+  const files = import.meta.glob<string>("/src/svg/**/*.svg", {
+    as: "raw",
+    eager: true,
+  });
+
+  if (!(filepath in files)) {
+    throw new Error(`${filepath} not found`);
+  }
+
+  const root = parse(files[filepath]);
+
+  const svg = root.querySelector("svg")!;
+  const { attributes, innerHTML } = svg;
+
+  return {
+    attributes,
+    innerHTML,
+  };
+}
+
+const { icon, ...attributes } = Astro.props as Props;
+const { attributes: baseAttributes, innerHTML } = getSVG(icon);
+
+const svgAttributes = { ...baseAttributes, ...attributes };
+---
+
+<svg {...svgAttributes} set:html={innerHTML} />

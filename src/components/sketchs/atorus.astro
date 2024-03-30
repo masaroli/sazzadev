@@ -1,0 +1,97 @@
+---
+const { width, height, id } = Astro.props;
+---
+
+<three-canvas data-width={width} data-height={height} data-id={id}>
+  <canvas id={id}></canvas>
+</three-canvas>
+
+<style>
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+</style>
+<script>
+  import * as THREE from "three";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import AbstractThreeCanvas from "../../utils/AbstractThreeJsClass";
+
+  const PI = Math.PI;
+
+  class ThreeCanvas extends AbstractThreeCanvas {
+    public readonly textureLoader: THREE.TextureLoader;
+
+    constructor() {
+      super();
+      this.textureLoader = new THREE.TextureLoader(this.loadingManager);
+      this.init();
+      this.debugObject.shadow1 = 0x333333;
+      this.debugObject.shadow2 = 0x5555ff;
+    }
+
+    private readonly init = (): void => {
+      this.addMouseEvent();
+      this.initGUI();
+      this.draw();
+    };
+    private readonly draw = (): void => {
+      this.camera.position.set(0, 0.22, 0);
+
+      const ambientLight = new THREE.AmbientLight(this.debugObject.shadow1, 1);
+      this.scene.add(ambientLight);
+      const pointLight = new THREE.PointLight(this.debugObject.shadow2, 50);
+      pointLight.position.x = 2;
+      pointLight.position.y = 3;
+      pointLight.position.z = 4;
+      this.scene.add(pointLight);
+
+      const doorColorTexture = this.textureLoader.load(
+        "textures/door/color.jpg?url",
+      );
+
+      doorColorTexture.colorSpace = THREE.SRGBColorSpace;
+
+      const material = new THREE.MeshStandardMaterial();
+      material.side = THREE.DoubleSide;
+
+      material.transparent = true;
+
+      if (this.GUI) {
+        this.GUI.close();
+        this.GUI.add(material, "wireframe");
+      }
+
+      const torus = new THREE.Mesh(
+        new THREE.TorusGeometry(-0.08, 0.08, 64, 64),
+        material,
+      );
+      torus.geometry.scale(2.5, 2.5, 2.5);
+
+      this.scene.add(torus);
+
+      // Controls
+      const orbitControls = new OrbitControls(
+        this.camera,
+        this.canvasElement ? this.canvasElement : undefined,
+      );
+      orbitControls.enableDamping = true;
+
+      // Animations
+      const tick = () => {
+        orbitControls.update();
+        this.renderer.render(this.scene, this.camera);
+        // Render
+        const elapsedTime = this.clock.getElapsedTime();
+
+        torus.rotation.y = -0.3 * elapsedTime;
+        torus.rotation.x = 0.3 * elapsedTime;
+        window.requestAnimationFrame(tick);
+      };
+      tick();
+    };
+  }
+  customElements.define("three-canvas", ThreeCanvas);
+</script>
