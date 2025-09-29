@@ -51,7 +51,8 @@ const Particles = ({
   glow: number;
   rotationSpeed: number;
 }) => {
-  const pointsRef = useRef(null);
+  const pointsRef =
+    useRef<THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>>(null);
 
   const { positions, sizes } = useMemo(() => {
     const positions = new Float32Array(count * 3);
