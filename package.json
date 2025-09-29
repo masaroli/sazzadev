@@ -10,14 +10,18 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.3.4",
-    "@astrojs/vercel": "^7.3.4",
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/react": "^4.4.0",
+    "@astrojs/vercel": "^8.2.8",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@vercel/analytics": "^1.2.2",
-    "astro": "^4.0.8",
+    "astro": "^5.14.1",
     "astro-icon": "^1.0.1",
     "gsap": "3.12",
+    "leva": "^0.10.0",
     "lil-gui": "^0.19.1",
-    "three": "^0.160.0",
+    "three": "^0.160.1",
     "typescript": "^5.3.3"
   },
   "devDependencies": {

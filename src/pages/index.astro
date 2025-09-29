@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import ThreeCanvas from "../components/ThreeCanvas.astro";
 import Icon from "../components/icon.astro";
+import ThreeScene from "../components/ReactComponent/ReactComponent";
 ---
 
 <script>
@@ -30,7 +31,8 @@ import Icon from "../components/icon.astro";
 
 <Layout title=".dev">
   <main>
-    <Icon icon="logo" width="40%" data-element="svg-logo" />
+    <ThreeScene client:only="react" />
+    <Icon icon="logo" width="30%" data-element="svg-logo" />
   </main>
 </Layout>
 
@@ -43,19 +45,11 @@ import Icon from "../components/icon.astro";
     height: 100dvh;
     display: grid;
     place-items: center;
+    background: black;
+    color: white;
   }
-
-  h1 {
-    font-size: 1rem;
-    font-size: clamp(2.4rem, 10vw, 4.6rem);
-    font-weight: 700;
-    line-height: 1;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0.75;
+  [data-element="svg-logo"] {
+    color: white;
+    z-index: 1;
   }
 </style>
