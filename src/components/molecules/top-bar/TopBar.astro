@@ -1,0 +1,33 @@
+---
+import Weather from "../../atoms/weather/Weather.astro";
+import Clock from "../../atoms/clock/Clock.astro";
+import LogoSz from "../../atoms/LogoSZ/LogoSz.astro";
+---
+
+<script>
+  import CoreComponent from "../../../utils/CoreComponent";
+
+  class TopBar extends CoreComponent {
+    constructor(element: HTMLElement) {
+      super(element);
+    }
+  }
+
+  document.querySelectorAll('[data-element="top-bar"]').forEach((element) => {
+    new TopBar(element as HTMLElement);
+  });
+</script>
+
+<div data-element="top-bar">
+  <Clock />
+  <LogoSz />
+  <Weather />
+</div>
+
+<style lang="scss">
+  [data-element="top-bar"] {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+</style>

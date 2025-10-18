@@ -1,0 +1,13 @@
+@use "sass:math";
+
+@function px-to-vw($number, $landscape: "true") {
+  $designWidth: 1920;
+  @if $landscape != "true" {
+    $designWidth: 1080;
+  }
+
+  $unit: 1vw;
+  $total: math.div($number * 100, $designWidth) * $unit;
+
+  @return $total;
+}

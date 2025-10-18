@@ -1,0 +1,168 @@
+---
+
+---
+
+<script>
+  import CoreComponent from "../../../utils/CoreComponent";
+  import * as THREE from "three";
+  import gsap from "gsap";
+
+  class CrtEffectComponent extends CoreComponent {
+    private renderer: THREE.WebGLRenderer | null = null;
+    private scene: THREE.Scene | null = null;
+    private camera: THREE.OrthographicCamera | null = null;
+    private uniforms: { [uniform: string]: THREE.IUniform };
+
+    constructor(element: HTMLElement) {
+      super(element);
+
+      this.uniforms = {
+        u_time: { value: 0.0 },
+        u_resolution: {
+          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        },
+      };
+      this.init();
+    }
+
+    private readonly init = () => {
+      const canvas = this.getElement(
+        '[data-element="crt-effect"]',
+      ) as HTMLCanvasElement;
+      if (!canvas) {
+        console.error("CRT Canvas not found inside wrapper!");
+        return;
+      }
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+      this.renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+      });
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const geometry = new THREE.PlaneGeometry(2, 2);
+      const material = new THREE.ShaderMaterial({
+        uniforms: this.uniforms,
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform float u_time;
+          uniform vec2 u_resolution;
+          varying vec2 vUv;
+
+          float random(vec2 st) {
+              return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+          }
+
+          void main() {
+              vec2 distortedUv = vUv - 0.5;
+              float r2 = dot(distortedUv, distortedUv);
+              distortedUv *= 1.0 + 0.05  * r2;
+              distortedUv += 0.5;
+
+              vec3 color = vec3(0.05, 0.10, 0.05);
+
+              if (distortedUv.x < 0.0 || distortedUv.x > 1.0 || distortedUv.y < 0.0 || distortedUv.y > 1.0) {
+                  color = vec3(0.0, 0.0, 0.0);
+              }
+
+              float scanline = sin(distortedUv.y * 800.0) * 0.04;
+              color -= scanline;
+
+              float vignette = (1.0 - distance(distortedUv, vec2(0.5))) * 0.5 + 0.5;
+              color *= vignette;
+              
+              float noise = (random(distortedUv + mod(u_time, 1.0)) - 0.5) * 0.1;
+              color += noise;
+
+              gl_FragColor = vec4(color, 1.0); // Set alpha to < 1.0 to see content behind
+          }
+        `,
+        transparent: true, // Make the material transparent
+      });
+
+      // 4. Mesh
+      const mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
+
+      // 5. Animation Loop
+      const clock = new THREE.Clock();
+      const animate = () => {
+        this.uniforms.u_time.value = clock.getElapsedTime();
+        this.renderer?.render(this.scene!, this.camera!);
+        requestAnimationFrame(animate);
+      };
+      animate();
+
+      //   const tl = gsap.timeline();
+      //   tl.to(this.element, {
+      //     // Target the wrapper div
+      //     clipPath: "circle(100%)", // Animate to a large ellipse
+      //     duration: 2,
+      //     ease: "crt",
+      //     delay: 0.5,
+      //   }).to(
+      //     this.uniforms.u_opacity,
+      //     {
+      //       // Animate the shader's opacity
+      //       value: 0.4, // The final opacity value
+      //       duration: 1,
+      //     },
+      //     "-=1.2",
+      //   );
+    };
+
+    private readonly handleResize = () => {
+      if (!this.renderer || !this.camera) return;
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.uniforms.u_resolution.value.set(
+        window.innerWidth,
+        window.innerHeight,
+      );
+    };
+
+    public destroy() {
+      window.removeEventListener("resize", this.handleResize);
+    }
+  }
+
+  document
+    .querySelectorAll('[data-element="crt-wrapper"]')
+    .forEach((element) => {
+      new CrtEffectComponent(element as HTMLElement);
+    });
+</script>
+<div data-element="crt-wrapper">
+  <canvas data-element="crt-effect"></canvas>
+</div>
+
+<style>
+  /* This CSS makes the canvas a fixed overlay on top of your entire site */
+  [data-element="crt-wrapper"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    z-index: 9999;
+    pointer-events: none;
+    mix-blend-mode: screen;
+
+    /* This is the key for the intro animation! */
+    /* It starts as a tiny dot in the center, completely hidden. */
+    /* clip-path: circle(0% at 50% 50%); */
+  }
+  [data-element="crt-effect"] {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>

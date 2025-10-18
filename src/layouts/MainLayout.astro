@@ -1,0 +1,85 @@
+---
+import { getLangFromUrl } from "../i18n/uitls";
+import "@fontsource-variable/jetbrains-mono";
+import "../styles/globals.scss";
+import CrtEffect from "../components/atoms/CRTEffect/CrtEffect.astro";
+const lang = getLangFromUrl(Astro.url);
+---
+
+<script>
+  import gsap from "gsap";
+  import ScrollTrigger from "gsap/dist/ScrollTrigger";
+  import ScrollSmoother from "gsap/ScrollSmoother";
+  import ScrollToPlugin from "gsap/ScrollToPlugin";
+  import SplitText from "gsap";
+  import CustomEase from "gsap/CustomEase";
+
+  gsap.registerPlugin(
+    ScrollSmoother,
+    ScrollTrigger,
+    SplitText,
+    ScrollToPlugin,
+    CustomEase,
+  );
+  CustomEase.create(
+    "crt",
+    "M0,0 C0.804,0 0.8,0.2 0.8,0.4 0.8,0.662 0.889,1 1,1",
+  );
+
+  CustomEase.create(
+    "rough",
+    "M0,0,C0,0,0.031,0.13,0.05,0.119,0.068,0.109,0.039,-0.033,0.06,-0.032,0.088,-0.029,0.037,0.203,0.065,0.204,0.081,0.205,0.057,0.107,0.07,0.086,0.09,0.051,0.163,0.064,0.185,0.105,0.208,0.151,0.166,0.374,0.2,0.371,0.232,0.369,0.2,0.171,0.205,0.113,0.206,0.091,0.2,0.052,0.215,0.048,0.267,0.035,0.293,0.385,0.34,0.446,0.371,0.488,0.45,0.448,0.475,0.49,0.491,0.517,0.478,0.638,0.5,0.634,0.533,0.628,0.482,0.357,0.52,0.353,0.569,0.348,0.519,0.768,0.57,0.757,0.615,0.747,0.533,0.416,0.575,0.393,0.6,0.38,0.606,0.502,0.625,0.55,0.67,0.669,0.776,0.988,0.845,1.034,0.858,1.043,0.86,1.034,0.865,1.026,0.873,1.013,0.877,0.963,0.885,0.939,0.898,0.898,0.928,0.77,0.955,0.779,0.984,0.788,1,1,1,1",
+  );
+  const ctx = gsap.matchMedia();
+  const globalTl = gsap.timeline();
+  ctx.add("(min-width: 900px)", () => {
+    ScrollSmoother.create({
+      smooth: 1.5,
+      smoothTouch: false,
+      normalizeScroll: true,
+    });
+  });
+
+  window.addEventListener("load", () => {
+    // This only runs once.
+    if (window.localStorage.getItem("hash")) {
+      const scrollTo = window.localStorage.getItem("hash");
+      gsap.to(window, {
+        duration: 0.1,
+        scrollTo: `#${scrollTo}`,
+      });
+
+      window.localStorage.clear();
+    }
+    document.querySelectorAll("[data-element*=hero]").forEach((element) => {
+      element.classList.add("show");
+    });
+  });
+</script>
+<script></script>
+
+<html lang=`${lang}`>
+  <head>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta charset="utf-8" />
+    <meta property="og:title" content="ACQ-IT soluciones de IT" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content={"/og-image.jpg"} />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="sazza.dev" />
+
+    <title>Sazza.Dev</title>
+  </head>
+  <body>
+    <div data-element="scroll-wrapper">
+      <div data-element="scroll-content">
+        <main class="content-wrapper">
+          <slot />
+          <CrtEffect />
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,125 @@
+---
+export interface Props {
+  Element?: string;
+  text?: string;
+  className: string;
+  timeline?: { tag: string; delay: string | number };
+}
+
+const { Element = "div", text = "Hello", className, timeline } = Astro.props;
+---
+
+<script>
+  import { gsap } from "gsap";
+  import SplitText from "gsap/SplitText";
+  import CoreComponent from "../../../utils/CoreComponent";
+  import mainTimeline from "../../../utils/globalTimeline";
+
+  gsap.registerPlugin(SplitText);
+
+  class Typography extends CoreComponent {
+    constructor(element: HTMLElement) {
+      super(element);
+      this.init();
+    }
+
+    private readonly init = () => {
+      const tag = this.element.dataset.animationTag;
+      const delay = this.element.dataset.animationDelay;
+
+      if (tag && delay) {
+        mainTimeline.addLabel(tag, delay);
+      }
+
+      const split = new SplitText(this.element, {
+        type: "chars",
+        mask: "chars",
+        charsClass: "text-char",
+        includeWhiteSpace: true,
+      });
+      split.chars.forEach((textBox) => {
+        const parentEl = textBox.parentElement;
+        const el = document.createElement("span");
+        el.classList.add("text-box");
+        parentEl?.appendChild(el);
+      });
+      const textEditorLine = this.getElements(".text-box");
+      const tl = gsap.timeline({
+        defaults: {
+          ease: "linear",
+        },
+        onComplete: () => {
+          split.revert();
+        },
+      });
+
+      gsap.set(this.element, { opacity: 1 });
+      gsap.set([split.chars, textEditorLine], { opacity: 0 });
+      tl.to(textEditorLine[0], {
+        opacity: 1,
+        repeat: 7,
+        duration: 0.1,
+
+        yoyo: true,
+        repeatDelay: 0.2,
+      }).addLabel("textAppear", "+=0");
+      textEditorLine.forEach((line, index) => {
+        tl.add(
+          gsap.to(line, { opacity: 1, repeat: 1, duration: 0.05, yoyo: true }),
+          `textAppear+=${index * 0.2}`,
+        );
+      });
+      split.chars.forEach((char, index) => {
+        tl.add(
+          gsap.to(char, { opacity: 1, duration: 0.1 }),
+          `textAppear+=${index * 0.2}`,
+        );
+      });
+
+      mainTimeline.add(tl, tag);
+    };
+  }
+
+  document
+    .querySelectorAll('[data-element="typography"]')
+    .forEach((element) => {
+      new Typography(element as HTMLElement);
+    });
+</script>
+
+<Element
+  data-element="typography"
+  data-animation-tag={timeline && `${timeline.tag}`}
+  data-animation-delay={timeline && `${timeline.delay}`}
+  class:list={className}
+>
+  {text}
+</Element>
+
+<style>
+  [data-element="typography"] {
+    opacity: 0;
+    .text-char {
+      opacity: 0;
+    }
+    .text-box {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+
+      &:before {
+        position: absolute;
+        background: white;
+        content: "";
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    }
+  }
+</style>

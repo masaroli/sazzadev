@@ -1,0 +1,62 @@
+---
+import axios from "axios";
+import { getLangFromUrl, useTranslations } from "../../../i18n/uitls";
+import { weatherCodeMap } from "../../../i18n/weather/weatherCodeMap";
+
+const apiKey = import.meta.env.PUBLIC_WEATHER_API_KEY;
+const city = "Buenos Aires";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const { data } = await axios.get(
+  `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(
+    city,
+  )}&aqi=no`,
+);
+
+const { temp_c, condition } = data.current;
+const key = weatherCodeMap[condition.code];
+const label = t(`weather.${key}`) || condition.text;
+const icon = condition.icon;
+---
+
+<script>
+  import CoreComponent from "../../../utils/CoreComponent";
+
+  class WeatherComponent extends CoreComponent {
+    constructor(element: HTMLElement) {
+      super(element);
+
+      this.init();
+    }
+
+    private readonly init = async () => {};
+  }
+
+  document.querySelectorAll('[data-element="weather"]').forEach((el) => {
+    new WeatherComponent(el as HTMLElement);
+  });
+</script>
+
+<div data-element="weather">
+  <div data-element="temp">{temp_c}°C</div>
+  <div data-element="condition">{label}</div>
+  <img class="icon" src={icon} />
+</div>
+
+<style lang="scss">
+  [data-element="weather"] {
+    padding: 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .icon {
+    width: 24px;
+    height: auto;
+    filter: hue-rotate(250deg);
+  }
+</style>

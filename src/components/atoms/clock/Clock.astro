@@ -1,0 +1,48 @@
+---
+
+---
+
+<script>
+  import CoreComponent from "../../../utils/CoreComponent";
+
+  class ClockComponent extends CoreComponent {
+    private timer: number = 0;
+
+    constructor(element: HTMLElement) {
+      super(element);
+
+      this.init();
+    }
+
+    private readonly pad = (n: number): string =>
+      n < 10 ? "0" + n : n.toString();
+
+    private readonly render = (now: Date) => {
+      const time = `${this.pad(now.getHours())}:${this.pad(
+        now.getMinutes(),
+      )}:${this.pad(now.getSeconds())}`;
+      this.element.textContent = time;
+    };
+
+    private readonly tick = () => {
+      const now = new Date();
+      this.render(now);
+      const delay = 1000 - now.getMilliseconds();
+      this.timer = window.setTimeout(this.tick, delay);
+    };
+
+    private readonly init = () => {
+      this.tick();
+    };
+
+    public destroy() {
+      clearTimeout(this.timer);
+    }
+  }
+
+  document.querySelectorAll('[data-element="clock"]').forEach((element) => {
+    new ClockComponent(element as HTMLElement);
+  });
+</script>
+
+<div data-element="clock"></div>

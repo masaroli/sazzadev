@@ -1,0 +1,145 @@
+@use "./mixins" as mixins;
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}
+:root {
+  --nav-spacing: 90px;
+  --color-dark-gray: #1e1e1e;
+  --color-middle-gray: #444;
+  --color-light-gray: #d4d4d4;
+  --color-white-text: #f9f9f9;
+  --color-acqit-blue: #0885e6;
+  --text-gradient: radial-gradient(
+    circle,
+    rgba(8, 133, 230, 1) 5%,
+    rgba(129, 200, 255, 1) 40%,
+    rgba(103, 186, 250, 1) 60%,
+    rgba(8, 133, 230, 1) 100%
+  );
+
+  @include mixins.bp(minWidth900) {
+    --nav-spacing: 150px;
+  }
+}
+
+body {
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+  color: var(--color-white-text);
+  font-family: "JetBrains Mono Variable", monospace;
+}
+
+main {
+  overflow: hidden;
+
+  @include mixins.bp(minWidth900) {
+    overflow: initial;
+  }
+}
+
+p {
+  font-weight: 400;
+}
+
+a {
+  color: currentColor;
+  text-decoration: none;
+}
+ul,
+li,
+button {
+  all: unset;
+}
+button {
+  cursor: pointer;
+}
+
+.content-wrapper {
+  position: relative;
+  width: 100%;
+  padding: mixins.px-to-vw(40) mixins.px-to-vw(60);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section {
+  position: relative;
+
+  padding-top: var(--nav-spacing);
+  overflow: hidden;
+}
+
+.body-2 {
+  @include mixins.fluid-type(14px, 20px);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.header-1 {
+  @include mixins.fluid-type(56px, 72px);
+  letter-spacing: -1px;
+  font-weight: 400;
+}
+
+.body {
+  @include mixins.fluid-type(14px, 16px);
+  letter-spacing: -1px;
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+.color-light-gray {
+  color: var(--color-light-gray);
+}
+
+.header-2 {
+  @include mixins.fluid-type(20px, 32px);
+  line-height: 1.25;
+  letter-spacing: -1px;
+  font-weight: 400;
+}
+
+.header-3 {
+  @include mixins.fluid-type(18px, 24px);
+  font-weight: 400;
+  line-height: 1.41;
+  position: relative;
+}
+
+.subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5ch;
+}
+
+.heeader-2 {
+  @include mixins.fluid-type(18px, 32px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+}
+
+title > div {
+  text-align: center;
+}
+
+.gradient-text {
+  background: rgb(8, 133, 230);
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -moz-background-clip: text;
+  -moz-text-fill-color: transparent;
+}
