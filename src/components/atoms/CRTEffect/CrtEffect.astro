@@ -12,6 +12,7 @@
     private scene: THREE.Scene | null = null;
     private camera: THREE.OrthographicCamera | null = null;
     private uniforms: { [uniform: string]: THREE.IUniform };
+    private animationId: number | null = null;
 
     constructor(element: HTMLElement) {
       super(element);
@@ -36,12 +37,24 @@
       this.scene = new THREE.Scene();
       this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
+      // Detect mobile device
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent,
+        );
+
       this.renderer = new THREE.WebGLRenderer({
         canvas: canvas,
         alpha: true,
+        antialias: false, // Disable antialiasing on all devices
+        powerPreference: "high-performance", // Request high-performance GPU
       });
+
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Limit pixel ratio - crucial for mobile performance
+      const pixelRatio = isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5);
+      this.renderer.setPixelRatio(pixelRatio);
 
       const geometry = new THREE.PlaneGeometry(2, 2);
       const material = new THREE.ShaderMaterial({
@@ -58,6 +71,7 @@
           uniform vec2 u_resolution;
           varying vec2 vUv;
 
+          // Simplified random function
           float random(vec2 st) {
               return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
           }
@@ -65,59 +79,47 @@
           void main() {
               vec2 distortedUv = vUv - 0.5;
               float r2 = dot(distortedUv, distortedUv);
-              distortedUv *= 1.0 + 0.05  * r2;
+              distortedUv *= 1.0 + 0.05 * r2;
               distortedUv += 0.5;
 
               vec3 color = vec3(0.05, 0.10, 0.05);
 
+              // Simplified edge check
               if (distortedUv.x < 0.0 || distortedUv.x > 1.0 || distortedUv.y < 0.0 || distortedUv.y > 1.0) {
-                  color = vec3(0.0, 0.0, 0.0);
+                  color = vec3(0.0);
               }
 
-              float scanline = sin(distortedUv.y * 800.0) * 0.04;
+              // Reduced scanline frequency for better performance
+              float scanline = sin(distortedUv.y * 400.0) * 0.04;
               color -= scanline;
 
-              float vignette = (1.0 - distance(distortedUv, vec2(0.5))) * 0.5 + 0.5;
+              // Optimized vignette calculation
+              float vignette = 1.0 - distance(distortedUv, vec2(0.5)) * 0.5;
               color *= vignette;
               
-              float noise = (random(distortedUv + mod(u_time, 1.0)) - 0.5) * 0.1;
+              // Reduce noise calculation frequency
+              float noise = (random(distortedUv + floor(u_time * 10.0) * 0.1) - 0.5) * 0.1;
               color += noise;
 
-              gl_FragColor = vec4(color, 1.0); // Set alpha to < 1.0 to see content behind
+              gl_FragColor = vec4(color, 1.0);
           }
         `,
-        transparent: true, // Make the material transparent
+        transparent: true,
+        precision: "mediump", // Use medium precision for better mobile performance
       });
 
-      // 4. Mesh
       const mesh = new THREE.Mesh(geometry, material);
       this.scene.add(mesh);
 
-      // 5. Animation Loop
       const clock = new THREE.Clock();
       const animate = () => {
         this.uniforms.u_time.value = clock.getElapsedTime();
         this.renderer?.render(this.scene!, this.camera!);
-        requestAnimationFrame(animate);
+        this.animationId = requestAnimationFrame(animate);
       };
       animate();
 
-      //   const tl = gsap.timeline();
-      //   tl.to(this.element, {
-      //     // Target the wrapper div
-      //     clipPath: "circle(100%)", // Animate to a large ellipse
-      //     duration: 2,
-      //     ease: "crt",
-      //     delay: 0.5,
-      //   }).to(
-      //     this.uniforms.u_opacity,
-      //     {
-      //       // Animate the shader's opacity
-      //       value: 0.4, // The final opacity value
-      //       duration: 1,
-      //     },
-      //     "-=1.2",
-      //   );
+      window.addEventListener("resize", this.handleResize);
     };
 
     private readonly handleResize = () => {
@@ -131,6 +133,11 @@
 
     public destroy() {
       window.removeEventListener("resize", this.handleResize);
+      if (this.animationId !== null) {
+        cancelAnimationFrame(this.animationId);
+      }
+      this.renderer?.dispose();
+      this.scene?.clear();
     }
   }
 

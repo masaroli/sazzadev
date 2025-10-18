@@ -19,15 +19,22 @@ import LogoSz from "../../atoms/LogoSZ/LogoSz.astro";
 </script>
 
 <div data-element="top-bar">
-  <Clock />
+  <div class="box"></div>
   <LogoSz />
   <Weather />
+  <Clock />
 </div>
 
 <style lang="scss">
   [data-element="top-bar"] {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 40px;
+    :global([data-element="logo-sz"]) {
+      margin-left: -20px;
+      margin-right: auto;
+    }
   }
 </style>

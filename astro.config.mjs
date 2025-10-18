@@ -1,9 +1,16 @@
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
-import react from '@astrojs/react';
+import react from "@astrojs/react";
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [icon(), react()],
   devToolbar: { enabled: false },
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: { additionalData: `@use "@styles/mixins" as *;` },
+      },
+    },
+  },
 });

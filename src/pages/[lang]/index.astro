@@ -5,7 +5,6 @@ import MainLayout from "../../layouts/MainLayout.astro";
 
 import TopBar from "../../components/molecules/top-bar/TopBar.astro";
 import Typography from "../../components/atoms/Typography/Typography.astro";
-import CrtEffect from "../../components/atoms/CRTEffect/CrtEffect.astro";
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({
@@ -21,14 +20,14 @@ const t = useTranslations(lang);
   <TopBar />
   <Typography
     Element="h1"
-    className="header-1"
+    className="header"
     text={t("home.title")}
     timeline={{ tag: "init", delay: "+=1" }}
   />
   <Typography
     Element="p"
-    className="header-2"
+    className="body"
     text={t("home.description")}
-    timeline={{ tag: "second", delay: "-=1" }}
+    timeline={{ tag: "second", delay: "-=0" }}
   />
 </MainLayout>

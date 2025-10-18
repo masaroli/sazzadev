@@ -16,16 +16,19 @@
       const tl = gsap.timeline({
         repeat: -1,
         yoyo: true,
-        repeatDelay: 3,
+
+        repeatDelay: 1.5,
         defaults: {
-          ease: "rough",
+          ease: "steps(6)",
+          yoyoEase: "steps(3)",
         },
       });
 
       tl.to(this.getElement('[id="1"]'), { attr: { x: 0 } }, 0);
-      tl.to(this.getElement('[id="2"]'), { attr: { x: 0 } }, 0.2);
-      tl.to(this.getElement('[id="3"]'), { attr: { x: 134.82 * 2 } }, 0.1);
-      tl.to(this.getElement('[id="4"]'), { attr: { x: 134.82 * 2 } }, 0.3);
+      tl.to(this.getElement('[id="2"]'), { attr: { x: 0 } }, 0);
+      tl.addLabel("middle", "-=0.5");
+      tl.to(this.getElement('[id="3"]'), { attr: { x: 134.82 * 2 } }, "middle");
+      tl.to(this.getElement('[id="4"]'), { attr: { x: 134.82 * 2 } }, "middle");
     };
   }
 
@@ -39,7 +42,6 @@
   xmlns="http://www.w3.org/2000/svg"
   version="1.1"
   viewBox="0 0 404.44 720"
-  width="40px"
   fill="white"
 >
   <g>
@@ -51,3 +53,8 @@
   <rect id="3" x="0" y="480" width="134.81" height="120"></rect>
   <rect id="4" x="0" y="360" width="134.81" height="120"></rect>
 </svg>
+<style lang="scss">
+  [data-element="logo-sz"] {
+    width: px-to-vw(48);
+  }
+</style>

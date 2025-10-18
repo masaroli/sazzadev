@@ -73,20 +73,21 @@ button {
   overflow: hidden;
 }
 
-.body-2 {
-  @include mixins.fluid-type(14px, 20px);
-  font-weight: 400;
-  line-height: 1.6;
-}
-
-.header-1 {
-  @include mixins.fluid-type(56px, 72px);
+.header {
+  @include mixins.fluid-type(24px, 36px);
   letter-spacing: -1px;
   font-weight: 400;
 }
 
 .body {
-  @include mixins.fluid-type(14px, 16px);
+  @include mixins.fluid-type(18px, 24px);
+  line-height: 1.25;
+  letter-spacing: -1px;
+  font-weight: 400;
+}
+
+.body-small {
+  @include mixins.fluid-type(10px, 12px);
   letter-spacing: -1px;
   line-height: 1.75;
   font-weight: 400;
@@ -94,34 +95,6 @@ button {
 
 .color-light-gray {
   color: var(--color-light-gray);
-}
-
-.header-2 {
-  @include mixins.fluid-type(20px, 32px);
-  line-height: 1.25;
-  letter-spacing: -1px;
-  font-weight: 400;
-}
-
-.header-3 {
-  @include mixins.fluid-type(18px, 24px);
-  font-weight: 400;
-  line-height: 1.41;
-  position: relative;
-}
-
-.subtitle {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.5ch;
-}
-
-.heeader-2 {
-  @include mixins.fluid-type(18px, 32px);
-  font-weight: 500;
-  line-height: 1.25;
 }
 
 h1,

@@ -57,7 +57,7 @@ const { Element = "div", text = "Hello", className, timeline } = Astro.props;
       gsap.set([split.chars, textEditorLine], { opacity: 0 });
       tl.to(textEditorLine[0], {
         opacity: 1,
-        repeat: 7,
+        repeat: gsap.utils.random([3, 5, 7, 1]),
         duration: 0.1,
 
         yoyo: true,
@@ -66,13 +66,13 @@ const { Element = "div", text = "Hello", className, timeline } = Astro.props;
       textEditorLine.forEach((line, index) => {
         tl.add(
           gsap.to(line, { opacity: 1, repeat: 1, duration: 0.05, yoyo: true }),
-          `textAppear+=${index * 0.2}`,
+          `textAppear+=${index * 0.05}`,
         );
       });
       split.chars.forEach((char, index) => {
         tl.add(
           gsap.to(char, { opacity: 1, duration: 0.1 }),
-          `textAppear+=${index * 0.2}`,
+          `textAppear+=${index * 0.05}`,
         );
       });
 
@@ -80,11 +80,13 @@ const { Element = "div", text = "Hello", className, timeline } = Astro.props;
     };
   }
 
-  document
-    .querySelectorAll('[data-element="typography"]')
-    .forEach((element) => {
-      new Typography(element as HTMLElement);
-    });
+  window.addEventListener("load", () => {
+    document
+      .querySelectorAll('[data-element="typography"]')
+      .forEach((element) => {
+        new Typography(element as HTMLElement);
+      });
+  });
 </script>
 
 <Element
